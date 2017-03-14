@@ -1,0 +1,47 @@
+<?php
+class ModelSaleEmailEquipmentEntry extends Model {
+	
+	public function getEquipmententry() {
+		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "email_template WHERE template_name = 'Equipmententry'");
+
+		return $query->row;
+	}	
+	
+	public function addTemplate($data) {
+		
+		$query = $this->db->query("SELECT * as total FROM " . DB_PREFIX . "email_template WHERE template_name = 'Equipmententry'");
+		
+		if($query->num_rows == 1) {
+			$template_id = $query->row['template_id'];
+				$this->db->query("UPDATE `" . DB_PREFIX . "email_template` SET 
+					template_name = 'Equipmententry',
+					name = '" . $this->db->escape(ucwords($data['name'])) . "',
+					email = '" . $this->db->escape($data['email']) . "',
+					subject = '" . $this->db->escape($data['subject']) . "',
+					delay_date = '" . date('Y-m-d', strtotime($this->db->escape($data['delaydate']))) . "',
+					message = '" . $this->db->escape($data['message']) . "',
+					date_modified = NOW()
+					WHERE template_id = '".$template_id."'");
+					
+			// Update email_delay -> delay_date column
+				$this->db->query("UPDATE `" . DB_PREFIX . "email_delay` SET 
+					delay_date = '" . date('Y-m-d', strtotime($this->db->escape($data['delaydate']))) . "',
+					date_modified = NOW()
+					WHERE template_id = '".$template_id."' AND status = 0");
+		
+		} else {
+			$this->db->query("UPDATE `" . DB_PREFIX . "email_template` SET 
+					template_name = 'Equipmententry',
+					name = '" . $this->db->escape(ucwords($data['name'])) . "',
+					email = '" . $this->db->escape($data['email']) . "',
+					subject = '" . $this->db->escape($data['subject']) . "',
+					delay_date = '" . date('Y-m-d', strtotime($this->db->escape($data['delaydate']))) . "',
+					message = '" . $this->db->escape($data['message']) . "',
+					date_added = NOW(), 
+					date_modified = NOW() where template_id = '43'");
+
+		}
+	}		
+}
+
+?>
